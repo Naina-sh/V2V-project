@@ -23,22 +23,22 @@ st.markdown("""
 <style>
     /* ---- base console colours (fixed -> no dim/bright flicker) ---- */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"],
-    [data-testid="stHeader"] { background-color: #060a12 !important; }
-    /* neon gradient backdrop */
+    [data-testid="stHeader"] { background-color: #170c08 !important; }
+    /* warm glossy gradient backdrop (champagne / amber / rose) */
     [data-testid="stAppViewContainer"] {
         background:
-            radial-gradient(ellipse 900px 500px at 12% -8%, rgba(34,211,238,.10), transparent 60%),
-            radial-gradient(ellipse 800px 500px at 88% -5%, rgba(167,139,250,.09), transparent 60%),
-            radial-gradient(ellipse 1100px 700px at 50% 115%, rgba(14,116,144,.12), transparent 65%),
-            linear-gradient(160deg, #0a1224 0%, #060a12 45%, #0b1020 100%) !important;
+            radial-gradient(ellipse 900px 500px at 12% -8%, rgba(245,158,11,.14), transparent 60%),
+            radial-gradient(ellipse 800px 500px at 88% -5%, rgba(244,114,182,.11), transparent 60%),
+            radial-gradient(ellipse 1100px 700px at 50% 115%, rgba(217,119,6,.16), transparent 65%),
+            linear-gradient(160deg, #2b1608 0%, #170c08 45%, #251009 100%) !important;
         background-attachment: fixed !important;
     }
     section[data-testid="stSidebar"] > div {
-        background: linear-gradient(180deg, #0d1526 0%, #0a101c 100%) !important;
+        background: linear-gradient(180deg, #2a160b 0%, #1a0d07 100%) !important;
     }
     html, body, [class*="css"], .stApp {
         font-family: 'Consolas', 'Cascadia Mono', 'Segoe UI', monospace;
-        color: #9fb3c8;
+        color: #d8bfa2;
     }
     * { transition: none !important; animation: none !important; }
     [data-testid="stPlotlyChart"], [data-testid="stDataFrame"],
@@ -47,92 +47,92 @@ st.markdown("""
     /* ---- top status strip ---- */
     .console-strip {
         display: flex; flex-wrap: wrap; gap: 4px 22px; align-items: center;
-        border: 1px solid #1b2942; border-left: 3px solid #22d3ee;
-        background: linear-gradient(90deg, rgba(13,21,38,.95), rgba(10,16,28,.9));
-        box-shadow: 0 0 20px rgba(34,211,238,.08);
+        border: 1px solid #4a2c14; border-left: 3px solid #f59e0b;
+        background: linear-gradient(90deg, rgba(48,26,10,.96), rgba(34,18,8,.9));
+        box-shadow: 0 0 20px rgba(245,158,11,.14);
         padding: 6px 14px; margin-bottom: 2px; border-radius: 6px;
-        font-size: 0.82rem; letter-spacing: .4px; color: #7c93ad;
+        font-size: 0.82rem; letter-spacing: .4px; color: #b08d66;
     }
-    .console-strip b { color: #e2e8f0; font-size: 0.95rem; text-shadow: 0 0 8px rgba(226,232,240,.25); }
-    .dot-run  { color: #22c55e; text-shadow: 0 0 10px rgba(34,197,94,.9); }
-    .dot-stop { color: #ef4444; text-shadow: 0 0 10px rgba(239,68,68,.9); }
+    .console-strip b { color: #fde9c8; font-size: 0.95rem; text-shadow: 0 0 8px rgba(253,233,200,.3); }
+    .dot-run  { color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,.9); }
+    .dot-stop { color: #f87171; text-shadow: 0 0 10px rgba(248,113,113,.9); }
     .v-attack { color: #f87171; font-weight: 700; }
     .v-warn   { color: #fbbf24; }
-    .v-ok     { color: #22c55e; }
-    .v-crit   { color: #f43f5e; font-weight: 700; }
+    .v-ok     { color: #4ade80; }
+    .v-crit   { color: #fb7185; font-weight: 700; }
 
-    /* ---- panels: neon-accented, thin borders ---- */
+    /* ---- panels: warm glossy, gold-accented ---- */
     .panel {
-        border: 1px solid #1b2942; border-top: 2px solid #22d3ee;
-        background: linear-gradient(165deg, rgba(16,26,46,.92) 0%, rgba(10,16,28,.88) 100%);
-        box-shadow: 0 0 18px rgba(34,211,238,.06), inset 0 1px 0 rgba(148,163,184,.05);
+        border: 1px solid #4a2c14; border-top: 2px solid #f59e0b;
+        background: linear-gradient(165deg, rgba(58,32,12,.94) 0%, rgba(36,19,8,.9) 100%);
+        box-shadow: 0 0 18px rgba(245,158,11,.10), inset 0 1px 0 rgba(253,230,184,.08);
         padding: 8px 10px; margin-bottom: 8px; border-radius: 6px;
     }
     .panel-head {
-        font-size: .72rem; letter-spacing: 2px; color: #22d3ee;
-        border-bottom: 1px solid #1b2942; padding-bottom: 4px; margin-bottom: 6px;
+        font-size: .72rem; letter-spacing: 2px; color: #f5b04c;
+        border-bottom: 1px solid #4a2c14; padding-bottom: 4px; margin-bottom: 6px;
         font-weight: 700; text-transform: uppercase;
-        text-shadow: 0 0 10px rgba(34,211,238,.45);
+        text-shadow: 0 0 10px rgba(245,158,11,.55);
     }
 
     /* ---- live alerts feed ---- */
     .feed-item {
         font-size: .78rem; padding: 5px 8px; margin-bottom: 4px;
-        border-left: 3px solid #334155; background: #0c1422; color: #9fb3c8;
+        border-left: 3px solid #6b4a26; background: #241408; color: #d8bfa2;
     }
-    .fi-attack   { border-color:#ef4444; background:linear-gradient(90deg, rgba(239,68,68,.16), rgba(28,13,18,.9)); color:#fca5a5; box-shadow:0 0 10px rgba(239,68,68,.18); }
-    .fi-critical { border-color:#f43f5e; background:linear-gradient(90deg, rgba(244,63,94,.16), rgba(28,13,18,.9)); color:#fda4af; font-weight:600; box-shadow:0 0 10px rgba(244,63,94,.2); }
-    .fi-speed    { border-color:#facc15; background:linear-gradient(90deg, rgba(250,204,21,.13), rgba(26,21,5,.9)); color:#fde68a; }
-    .fi-distance { border-color:#a78bfa; background:linear-gradient(90deg, rgba(167,139,250,.13), rgba(21,16,37,.9)); color:#c4b5fd; }
-    .fi-join     { border-color:#22c55e; background:linear-gradient(90deg, rgba(34,197,94,.13), rgba(8,24,14,.9)); color:#86efac; }
-    .fi-leave    { border-color:#f472b6; background:linear-gradient(90deg, rgba(244,114,182,.13), rgba(26,13,22,.9)); color:#f9a8d4; }
-    .fi-safe     { border-color:#334155; background:#0c1422; color:#64748b; }
-    .fi-info     { border-color:#334155; background:#0c1422; color:#94a3b8; }
+    .fi-attack   { border-color:#f87171; background:linear-gradient(90deg, rgba(248,113,113,.17), rgba(40,14,10,.92)); color:#fecaca; box-shadow:0 0 10px rgba(248,113,113,.18); }
+    .fi-critical { border-color:#fb7185; background:linear-gradient(90deg, rgba(251,113,133,.17), rgba(40,14,10,.92)); color:#fda4af; font-weight:600; box-shadow:0 0 10px rgba(251,113,133,.2); }
+    .fi-speed    { border-color:#fbbf24; background:linear-gradient(90deg, rgba(251,191,36,.14), rgba(40,26,5,.92)); color:#fde68a; }
+    .fi-distance { border-color:#e879a6; background:linear-gradient(90deg, rgba(232,121,166,.14), rgba(42,16,26,.92)); color:#f9a8d4; }
+    .fi-join     { border-color:#4ade80; background:linear-gradient(90deg, rgba(74,222,128,.14), rgba(10,28,16,.92)); color:#86efac; }
+    .fi-leave    { border-color:#f472b6; background:linear-gradient(90deg, rgba(244,114,182,.14), rgba(42,14,24,.92)); color:#f9a8d4; }
+    .fi-safe     { border-color:#6b4a26; background:#241408; color:#a07e5a; }
+    .fi-info     { border-color:#6b4a26; background:#241408; color:#c4a377; }
     .feed-item:hover { filter: brightness(1.25); border-left-width: 5px; }
-    .feed-item .t { color:#475569; font-size:.68rem; }
+    .feed-item .t { color:#8a6640; font-size:.68rem; }
 
     /* ---- connection list ---- */
     .conn-row {
         display:flex; justify-content:space-between; font-size:.78rem;
-        padding: 3px 6px; border-bottom: 1px dashed #16202e; color:#9fb3c8;
+        padding: 3px 6px; border-bottom: 1px dashed #4a2c14; color:#d8bfa2;
     }
     .conn-close  { color:#fbbf24; }
-    .conn-crit   { color:#f43f5e; }
+    .conn-crit   { color:#fb7185; }
 
     /* ---- vehicle inspector ---- */
     .insp { font-size:.8rem; line-height:1.7; }
-    .insp .k { color:#64748b; display:inline-block; min-width:110px; }
+    .insp .k { color:#a07e5a; display:inline-block; min-width:110px; }
 
     /* ---- compact widgets / buttons ---- */
     .stButton > button {
         font-size: .78rem; padding: 4px 8px; border-radius: 4px;
         font-family: 'Consolas', monospace; letter-spacing: .5px;
-        border: 1px solid #1b2942;
-        background: linear-gradient(160deg, #14213a, #0d1526);
-        color: #cbd5e1;
+        border: 1px solid #6b4a26;
+        background: linear-gradient(160deg, #43290f, #2a160b);
+        color: #fde9c8;
     }
     .stButton > button:hover {
-        border-color: #22d3ee; color: #22d3ee;
-        box-shadow: 0 0 12px rgba(34,211,238,.35);
+        border-color: #f59e0b; color: #fbbf24;
+        box-shadow: 0 0 12px rgba(245,158,11,.4);
     }
     .stButton > button[kind="primary"] {
-        border-color: #22c55e; color: #4ade80;
-        box-shadow: 0 0 12px rgba(34,197,94,.25);
+        border-color: #4ade80; color: #86efac;
+        box-shadow: 0 0 12px rgba(74,222,128,.25);
     }
     .stTabs [data-baseweb="tab-list"] { gap: 2px; background: transparent; }
     .stTabs [data-baseweb="tab"] {
-        background-color: #0c1422; border: 1px solid #16202e; border-bottom: none;
+        background-color: #241408; border: 1px solid #4a2c14; border-bottom: none;
         border-radius: 4px 4px 0 0; padding: 5px 16px;
         font-size: .75rem; letter-spacing: 1px; font-weight: 700;
-        color: #64748b;
+        color: #a07e5a;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #0a101c !important; color: #22d3ee !important;
-        border-top: 2px solid #22d3ee;
+        background-color: #351d0a !important; color: #f5b04c !important;
+        border-top: 2px solid #f59e0b;
     }
-    [data-testid="stDataFrame"] { border: 1px solid #16202e; }
-    h1, h2, h3 { color: #cbd5e1 !important; }
-    hr { border-color: #16202e; }
+    [data-testid="stDataFrame"] { border: 1px solid #4a2c14; }
+    h1, h2, h3 { color: #fde9c8 !important; }
+    hr { border-color: #4a2c14; }
     .stApp .block-container { padding-top: 0.6rem; padding-bottom: 0.5rem; max-width: 100%; }
 </style>
 """, unsafe_allow_html=True)
@@ -145,10 +145,10 @@ weather_types = {0: "Clear", 1: "Rain", 2: "Fog", 3: "Snow"}
 
 # per-type visual identity on the tactical map
 TYPE_STYLE = {
-    0: {"symbol": "circle",      "color": "#38bdf8", "code": "CAR"},
-    1: {"symbol": "square",      "color": "#f59e0b", "code": "BUS"},
-    2: {"symbol": "diamond",     "color": "#f43f5e", "code": "AMB"},
-    3: {"symbol": "triangle-up", "color": "#a78bfa", "code": "TRK"},
+    0: {"symbol": "circle",      "color": "#fbbf24", "code": "CAR"},   # gold
+    1: {"symbol": "square",      "color": "#38bdf8", "code": "BUS"},  # sky (contrast pop)
+    2: {"symbol": "diamond",     "color": "#f43f5e", "code": "AMB"},  # rose red
+    3: {"symbol": "triangle-up", "color": "#e879a6", "code": "TRK"},  # pink
 }
 
 # ----------------------------------------------------
@@ -443,7 +443,7 @@ def render_network_map():
                       x0=veh["x"] - comm_range, y0=veh["y"] - comm_range,
                       x1=veh["x"] + comm_range, y1=veh["y"] + comm_range,
                       line=dict(width=0),
-                      fillcolor="rgba(56,189,248,0.045)")
+                      fillcolor="rgba(245,158,11,0.05)")
 
     # connection lines (colour = severity)
     for a, b, d in connections:
@@ -452,7 +452,7 @@ def render_network_map():
         elif d < dist_thr:
             colour, width = "#fbbf24", 1.4
         else:
-            colour, width = "rgba(34,211,238,0.35)", 1
+            colour, width = "rgba(245,158,11,0.4)", 1
         fig.add_trace(go.Scatter(
             x=[vehicles[a]["x"], vehicles[b]["x"]],
             y=[vehicles[a]["y"], vehicles[b]["y"]],
@@ -475,10 +475,10 @@ def render_network_map():
                                "#fbbf24" if v in too_close else
                                "#fde047" if v in speeding else style["color"]
                                for v in vids],
-                        line=dict(color="#060a12", width=1)),
+                        line=dict(color="#170c08", width=1)),
             text=[str(v) for v in vids],
             textposition="top center",
-            textfont=dict(size=9, color="#cbd5e1"),
+            textfont=dict(size=9, color="#fde9c8"),
             name=f"{style['code']} ({vehicle_types[t]})",
             customdata=[[v, vehicle_types[t], vehicles[v]["speed"],
                          st.session_state.last_status.get(v, "—")]
@@ -501,7 +501,8 @@ def render_network_map():
 
     fig.update_layout(
         template="plotly_dark",
-        paper_bgcolor="#0a101c", plot_bgcolor="#060a12",
+        paper_bgcolor="#241408", plot_bgcolor="#170c08",
+        font=dict(color="#d8bfa2"),
         margin=dict(l=10, r=10, t=24, b=6),
         height=640,
         xaxis=dict(range=[-60, SIM_W + 60], showgrid=True, zeroline=False,
@@ -812,7 +813,7 @@ def _run_dashboard():
                                 use_container_width=True, key="ids_pie")
             with c2:
                 st.plotly_chart(px.bar(fdf["status"].value_counts(),
-                                       color_discrete_sequence=["#22d3ee"],
+                                       color_discrete_sequence=["#f59e0b"],
                                        template="plotly_dark"),
                                 use_container_width=True, key="ids_bar")
             st.markdown('<div class="panel-head" style="margin-top:6px">◤ FLAGGED ATTACK MESSAGES</div>',
@@ -851,7 +852,7 @@ def _run_dashboard():
                                        y=[vehicles[v]["speed"] for v in vehicles],
                                        labels={"x": "vehicle", "y": "km/h"},
                                        title="Current Speeds",
-                                       color_discrete_sequence=["#22d3ee"],
+                                       color_discrete_sequence=["#f59e0b"],
                                        template="plotly_dark"),
                                 use_container_width=True, key="safety_speeds")
             with s2:
@@ -859,7 +860,7 @@ def _run_dashboard():
                     fdf = filtered(df)
                     st.plotly_chart(px.line(fdf, x="time", y="distance", markers=True,
                                             title="Distance Between Communicating Vehicles",
-                                            color_discrete_sequence=["#a78bfa"],
+                                            color_discrete_sequence=["#e879a6"],
                                             template="plotly_dark"),
                                     use_container_width=True, key="safety_dist")
                 else:
@@ -931,24 +932,34 @@ def _run_dashboard():
             with a1:
                 st.plotly_chart(px.line(fdf, x="time", y="speed", markers=True,
                                         title="Speed Over Time",
-                                        color_discrete_sequence=["#22d3ee"],
+                                        color_discrete_sequence=["#f59e0b"],
                                         template="plotly_dark"),
                                 use_container_width=True, key="an_speed")
                 st.plotly_chart(px.bar(fdf["status"].value_counts(), title="IDS Verdicts",
-                                       color_discrete_sequence=["#22d3ee"],
+                                       color_discrete_sequence=["#f59e0b"],
                                        template="plotly_dark"),
                                 use_container_width=True, key="an_verdicts")
             with a2:
-                st.plotly_chart(px.pie(fdf["weather"].value_counts(), title="Weather Distribution",
-                                       hole=0.4,
-                                       color_discrete_sequence=["#22d3ee", "#a78bfa",
-                                                                "#fbbf24", "#f43f5e"],
+                # --- weather distribution: never render empty ---
+                wdf = fdf if not fdf.empty and "weather" in fdf.columns else \
+                      (df if not df.empty and "weather" in df.columns else None)
+                if wdf is not None:
+                    wcounts = wdf["weather"].value_counts()
+                else:
+                    # no messages yet: show the current live weather condition
+                    wcounts = pd.Series(
+                        [max(len(st.session_state.vehicles), 1)],
+                        index=[f"{weather_types[st.session_state.weather_val]} (current)"])
+                st.plotly_chart(px.pie(names=wcounts.index, values=wcounts.values,
+                                       title="Weather Distribution", hole=0.4,
+                                       color_discrete_sequence=["#f59e0b", "#fb7185",
+                                                                "#fbbf24", "#38bdf8"],
                                        template="plotly_dark"),
                                 use_container_width=True, key="an_weather")
                 if "distance" in fdf.columns:
                     st.plotly_chart(px.line(fdf, x="time", y="distance", markers=True,
                                             title="Distance Between Communicating Vehicles",
-                                            color_discrete_sequence=["#a78bfa"],
+                                            color_discrete_sequence=["#e879a6"],
                                             template="plotly_dark"),
                                     use_container_width=True, key="an_dist")
             st.markdown('<div class="panel-head">◤ FULL MESSAGE LOG</div>', unsafe_allow_html=True)
