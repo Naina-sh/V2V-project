@@ -134,6 +134,60 @@ st.markdown("""
     h1, h2, h3 { color: #fde9c8 !important; }
     hr { border-color: #4a2c14; }
     .stApp .block-container { padding-top: 0.6rem; padding-bottom: 0.5rem; max-width: 100%; }
+
+    /* ---- command header ---- */
+    .cmd-header {
+        display: flex; align-items: center; justify-content: space-between;
+        border: 1px solid #4a2c14; border-left: 3px solid #f59e0b;
+        background: linear-gradient(90deg, rgba(48,26,10,.96), rgba(34,18,8,.9));
+        box-shadow: 0 0 20px rgba(245,158,11,.14);
+        padding: 10px 16px; margin-bottom: 8px; border-radius: 6px;
+    }
+    .cmd-title { font-size: 1.02rem; font-weight: 700; letter-spacing: 3px; color: #fde9c8;
+                 text-shadow: 0 0 12px rgba(245,158,11,.5); }
+    .cmd-sub { font-size: .68rem; letter-spacing: 1.6px; color: #a07e5a; margin-top: 2px; }
+    .cmd-right { text-align: right; font-size: .78rem; color: #b08d66; line-height: 1.6; }
+
+    /* ---- KPI cards ---- */
+    .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 10px; }
+    .kpi {
+        border: 1px solid #4a2c14; border-top: 2px solid #f59e0b; border-radius: 6px;
+        background: linear-gradient(165deg, rgba(58,32,12,.94), rgba(36,19,8,.9));
+        padding: 8px 10px; text-align: center; box-shadow: 0 0 14px rgba(245,158,11,.08);
+    }
+    .kpi .v { font-size: 1.35rem; font-weight: 700; color: #fde9c8;
+              text-shadow: 0 0 10px rgba(253,233,200,.35); }
+    .kpi .l { font-size: .62rem; letter-spacing: 1.2px; color: #a07e5a;
+              text-transform: uppercase; margin-top: 2px; }
+    .kpi-red   .v { color: #f87171; }  .kpi-red   { border-top-color: #f87171; }
+    .kpi-rose  .v { color: #fb7185; }  .kpi-rose  { border-top-color: #fb7185; }
+    .kpi-amber .v { color: #fbbf24; }  .kpi-amber { border-top-color: #fbbf24; }
+    .kpi-green .v { color: #4ade80; }  .kpi-green { border-top-color: #4ade80; }
+
+    /* ---- numbered section titles ---- */
+    .section-title { display: flex; align-items: baseline; gap: 8px; margin: 2px 0 6px;
+                     border-bottom: 1px solid #4a2c14; padding-bottom: 4px; }
+    .section-num { font-size: .68rem; font-weight: 700; color: #170c08; background: #f59e0b;
+                   border-radius: 3px; padding: 1px 6px; letter-spacing: 1px;
+                   box-shadow: 0 0 8px rgba(245,158,11,.5); }
+    .section-name { font-size: .78rem; font-weight: 700; letter-spacing: 2px; color: #f5b04c;
+                    text-transform: uppercase; text-shadow: 0 0 10px rgba(245,158,11,.55); }
+    .section-sub { font-size: .64rem; color: #8a6640; letter-spacing: .4px;
+                   margin-left: auto; text-align: right; }
+
+    /* ---- severity chips ---- */
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+    .chip { font-size: .64rem; font-weight: 700; letter-spacing: .8px; padding: 2px 8px;
+            border-radius: 10px; border: 1px solid; }
+    .chip-atk  { color: #fecaca; border-color: #f87171; background: rgba(248,113,113,.15); }
+    .chip-crit { color: #fda4af; border-color: #fb7185; background: rgba(251,113,133,.15); }
+    .chip-warn { color: #fde68a; border-color: #fbbf24; background: rgba(251,191,36,.15); }
+    .chip-ok   { color: #86efac; border-color: #4ade80; background: rgba(74,222,128,.12); }
+
+    /* ---- sub-section labels inside a panel ---- */
+    .sub-head { font-size: .66rem; letter-spacing: 1.5px; color: #c08a4a; text-transform: uppercase;
+                border-left: 2px solid #6b4a26; padding-left: 6px; margin: 10px 0 5px; font-weight: 700; }
+    .sub-head:first-child { margin-top: 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -526,25 +580,57 @@ ALERT_ICON = {"attack": "🚨", "critical": "🔴", "speed": "⚠️", "distance
               "join": "🟢", "leave": "🔴", "safe": "🟢", "info": "•"}
 
 def render_status_strip():
+    """Command header + at-a-glance KPI cards: the 'what is happening right now' row."""
     running = st.session_state.running
-    attack_alerts = sum(1 for a in st.session_state.alerts if a["kind"] == "attack")
-    safety_alerts = len(st.session_state.alerts) - attack_alerts
-    dot = '<span class="dot-run">● RUNNING</span>' if running else '<span class="dot-stop">● STOPPED</span>'
+    alerts = st.session_state.alerts
+    n_atk = sum(1 for a in alerts if a["kind"] == "attack")
+    n_crit = sum(1 for a in alerts if a["kind"] == "critical")
+    n_speed = sum(1 for a in alerts if a["kind"] == "speed")
+    n_dist = sum(1 for a in alerts if a["kind"] == "distance")
+    crit_pairs = sum(1 for a, b, d in st.session_state.connections
+                     if d < st.session_state.critical_distance_threshold)
+    dot = '<span class="dot-run">● LIVE</span>' if running else '<span class="dot-stop">● OFFLINE</span>'
     st.markdown(
-        f'<div class="console-strip">'
-        f'<span><b>V2V&nbsp;NETWORK</b>&nbsp;{dot}</span>'
-        f'<span>ACTIVE&nbsp;VEHICLES <b>{len(st.session_state.vehicles)}</b></span>'
-        f'<span>CONNECTIONS <b>{len(st.session_state.connections)}</b></span>'
-        f'<span>IDS&nbsp;ATTACKS <b class="v-attack">{attack_alerts}</b></span>'
-        f'<span>SAFETY&nbsp;ALERTS <b class="v-warn">{safety_alerts}</b></span>'
-        f'<span>JOINED <b class="v-ok">{st.session_state.joined_count}</b></span>'
-        f'<span>LEFT <b>{st.session_state.left_count}</b></span>'
-        f'<span>WEATHER <b>{weather_types[st.session_state.weather_val].upper()}</b></span>'
-        f'<span>MSG&nbsp;LOG <b>{len(st.session_state.log)}</b></span>'
-        f'<span style="margin-left:auto;color:#475569">{now_str()}</span>'
+        f'<div class="cmd-header">'
+        f'<div><div class="cmd-title">V2V · VANET COMMAND CENTER</div>'
+        f'<div class="cmd-sub">REAL-TIME INTRUSION DETECTION &amp; ROAD SAFETY MONITORING CONSOLE</div></div>'
+        f'<div class="cmd-right">{dot} &nbsp;·&nbsp; WEATHER: '
+        f'{weather_types[st.session_state.weather_val].upper()}<br>'
+        f'<span style="color:#8a6640">JOINED <b class="v-ok">{st.session_state.joined_count}</b>'
+        f' &nbsp;/&nbsp; LEFT <b>{st.session_state.left_count}</b>'
+        f' &nbsp;·&nbsp; {now_str()}</span></div>'
+        f'</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="kpi-grid">'
+        f'<div class="kpi"><div class="v">{len(st.session_state.vehicles)}</div>'
+        f'<div class="l">Vehicles Online</div></div>'
+        f'<div class="kpi"><div class="v">{len(st.session_state.connections)}</div>'
+        f'<div class="l">Active Links</div></div>'
+        f'<div class="kpi kpi-red"><div class="v">{n_atk}</div>'
+        f'<div class="l">IDS Attacks</div></div>'
+        f'<div class="kpi kpi-rose"><div class="v">{crit_pairs}</div>'
+        f'<div class="l">Collision Risks</div></div>'
+        f'<div class="kpi kpi-amber"><div class="v">{n_speed + n_dist}</div>'
+        f'<div class="l">Safety Warnings</div></div>'
+        f'<div class="kpi kpi-green"><div class="v">{len(st.session_state.log)}</div>'
+        f'<div class="l">Messages Logged</div></div>'
         f'</div>', unsafe_allow_html=True)
 
 def render_alert_feed(n=16):
+    # severity summary chips — instant "what is the current situation"
+    al = st.session_state.alerts
+    n_atk = sum(1 for a in al if a["kind"] == "attack")
+    n_crit = sum(1 for a in al if a["kind"] == "critical")
+    n_spd = sum(1 for a in al if a["kind"] == "speed")
+    n_dst = sum(1 for a in al if a["kind"] == "distance")
+    st.markdown(
+        f'<div class="chips">'
+        f'<span class="chip chip-atk">ATTACK {n_atk}</span>'
+        f'<span class="chip chip-crit">COLLISION {n_crit}</span>'
+        f'<span class="chip chip-warn">SPEED {n_spd}</span>'
+        f'<span class="chip chip-warn">DISTANCE {n_dst}</span>'
+        f'<span class="chip chip-ok">TOTAL {len(al)}</span></div>',
+        unsafe_allow_html=True)
     kinds = ["All", "🚨 Attacks only", "🔴 Critical", "⚠️ Speed", "⚠️ Distance",
              "🟢 Join/Leave"]
     kind_f = st.radio("FILTER", kinds, index=0, horizontal=True,
@@ -567,12 +653,15 @@ def render_alert_feed(n=16):
         st.markdown('<div class="feed-item fi-info">— no alerts — awaiting network activity —</div>',
                     unsafe_allow_html=True)
         return
+    ALERT_LABEL = {"attack": "ATTACK", "critical": "COLLISION RISK", "speed": "SPEED",
+                   "distance": "DISTANCE", "join": "JOINED", "leave": "LEFT"}
     for a in alerts:
         cls = a["kind"] if a["kind"] in ("attack", "critical", "speed", "distance",
                                          "join", "leave", "safe") else "info"
+        tag = ALERT_LABEL.get(a["kind"], "EVENT")
         st.markdown(
             f'<div class="feed-item fi-{cls}">{ALERT_ICON.get(a["kind"], "•")} '
-            f'<span class="t">{a["time"]}</span>&nbsp; {a["msg"]}</div>',
+            f'<span class="t">{a["time"]}</span>&nbsp; <b>{tag}</b> — {a["msg"]}</div>',
             unsafe_allow_html=True)
 
 def render_connection_list():
@@ -668,7 +757,12 @@ def _run_dashboard():
 
     # ================= LEFT: NETWORK CONTROLS =================
     with left:
-        st.markdown('<div class="panel-head">◤ NETWORK CONTROLS</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-title"><span class="section-num">01</span>'
+            '<span class="section-name">Control Panel</span>'
+            '<span class="section-sub">run the simulation · tune thresholds</span></div>'
+            '<div class="sub-head">▶ Simulation Control</div>',
+            unsafe_allow_html=True)
 
         b1, b2 = st.columns(2)
         with b1:
@@ -702,8 +796,7 @@ def _run_dashboard():
                         unsafe_allow_html=True)
 
         # ---- simulation settings (compact) ----
-        st.markdown('<div class="panel-head" style="margin-top:8px">◤ SIMULATION SETTINGS</div>',
-                    unsafe_allow_html=True)
+        st.markdown('<div class="sub-head">⚙ Alert Thresholds</div>', unsafe_allow_html=True)
         st.slider("COMM RANGE (m)", 50, 600, key="comm_range", step=10)
         st.slider("MAX VEHICLES", 2, 20, key="max_vehicles")
         st.slider("HIGH-SPEED THR (km/h)", 60, 130, key="speed_alert_threshold")
@@ -711,8 +804,7 @@ def _run_dashboard():
         st.slider("CRITICAL DIST (m)", 5, 100, key="critical_distance_threshold")
 
         # ---- vehicle inspector ----
-        st.markdown('<div class="panel-head" style="margin-top:8px">◤ VEHICLE INSPECTOR</div>',
-                    unsafe_allow_html=True)
+        st.markdown('<div class="sub-head">🔍 Vehicle Inspector</div>', unsafe_allow_html=True)
         vid_list = sorted(st.session_state.vehicles.keys())
         if vid_list:
             sel = st.selectbox("INSPECT", options=vid_list,
@@ -726,26 +818,42 @@ def _run_dashboard():
 
     # ================= CENTER: LIVE V2V NETWORK MAP =================
     with center:
-        st.markdown('<div class="panel-head">🗺 LIVE V2V NETWORK MAP'
-                    '&nbsp;&nbsp;<span style="color:#475569">1 km × 1 km operational area</span></div>',
-                    unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-title"><span class="section-num">02</span>'
+            '<span class="section-name">Live Network Map</span>'
+            '<span class="section-sub">1 km × 1 km · hover a node for details · '
+            'line colour = link severity</span></div>',
+            unsafe_allow_html=True)
         st.plotly_chart(render_network_map(), use_container_width=True, key="map_main",
                         config={"displaylogo": False, "scrollZoom": True})
 
     # ================= RIGHT: LIVE MONITORING =================
     with right:
-        st.markdown('<div class="panel-head" style="color:#f87171">🚨 LIVE ALERTS</div>',
-                    unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-title"><span class="section-num">03</span>'
+            '<span class="section-name">Monitoring</span>'
+            '<span class="section-sub">live situation feed</span></div>'
+            '<div class="sub-head">🚨 Live Alerts</div>',
+            unsafe_allow_html=True)
         render_alert_feed()
 
-        st.markdown('<div class="panel-head" style="margin-top:8px">📡 ACTIVE CONNECTIONS</div>',
-                    unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="sub-head">📡 Active Connections '
+            f'<span style="color:#8a6640">({len(st.session_state.connections)})</span></div>',
+            unsafe_allow_html=True)
         render_connection_list()
 
     # ================= BOTTOM: OPERATIONS TABS =================
-    st.markdown("---")
+    st.markdown(
+        '<div class="section-title"><span class="section-num">04</span>'
+        '<span class="section-name">Detailed Analysis</span>'
+        '<span class="section-sub">traffic · intrusion detection · safety · fleet · '
+        'events · analytics — use the filters below to scope every tab</span></div>',
+        unsafe_allow_html=True)
 
     # compact filter row
+    st.markdown('<div class="sub-head" style="margin-top:0">⧩ Filter Data — applies to every tab below</div>',
+                unsafe_allow_html=True)
     fcol1, fcol2, fcol3 = st.columns([2.2, 2.2, 2.2])
     with fcol1:
         filter_ids = st.multiselect("VEHICLE ID", options=sorted(st.session_state.seen_ids),
@@ -776,7 +884,9 @@ def _run_dashboard():
 
     # ---- LIVE TRAFFIC ----
     with tab_traffic:
-        st.markdown('<div class="panel-head">◤ LIVE V2V COMMUNICATION TRAFFIC</div>',
+        st.markdown('<div class="panel-head">◤ LIVE V2V COMMUNICATION TRAFFIC'
+                    '<span style="color:#8a6640;text-transform:none;letter-spacing:.4px">'
+                    ' &nbsp;— every message exchanged between vehicles, newest first</span></div>',
                     unsafe_allow_html=True)
         if df.empty:
             st.markdown('<div class="feed-item fi-info">— no traffic — network stopped or no vehicles in range —</div>',
@@ -787,7 +897,9 @@ def _run_dashboard():
 
     # ---- IDS ----
     with tab_ids:
-        st.markdown('<div class="panel-head">◤ INTRUSION DETECTION SYSTEM</div>',
+        st.markdown('<div class="panel-head">◤ INTRUSION DETECTION SYSTEM'
+                    '<span style="color:#8a6640;text-transform:none;letter-spacing:.4px">'
+                    ' &nbsp;— LSTM + Random Forest verdict on every message</span></div>',
                     unsafe_allow_html=True)
         if df.empty:
             st.markdown('<div class="feed-item fi-info">— no classified messages yet —</div>',
@@ -827,7 +939,9 @@ def _run_dashboard():
 
     # ---- SAFETY ----
     with tab_safety:
-        st.markdown('<div class="panel-head">◤ ROAD SAFETY MONITOR</div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel-head">◤ ROAD SAFETY MONITOR'
+                    '<span style="color:#8a6640;text-transform:none;letter-spacing:.4px">'
+                    ' &nbsp;— speeds, distances and collision-risk pairs</span></div>', unsafe_allow_html=True)
         vehicles = st.session_state.vehicles
         if not vehicles:
             st.markdown('<div class="feed-item fi-info">— no vehicles to monitor —</div>',
@@ -880,7 +994,9 @@ def _run_dashboard():
 
     # ---- VEHICLES ----
     with tab_veh:
-        st.markdown('<div class="panel-head">◤ ACTIVE VEHICLE REGISTRY</div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel-head">◤ ACTIVE VEHICLE REGISTRY'
+                    '<span style="color:#8a6640;text-transform:none;letter-spacing:.4px">'
+                    ' &nbsp;— full details of every vehicle currently in the network</span></div>', unsafe_allow_html=True)
         vehicles = st.session_state.vehicles
         if not vehicles:
             st.markdown('<div class="feed-item fi-info">— network empty —</div>',
@@ -906,7 +1022,9 @@ def _run_dashboard():
 
     # ---- NETWORK EVENTS ----
     with tab_events:
-        st.markdown('<div class="panel-head">◤ NETWORK EVENTS — JOIN / LEAVE LOG</div>',
+        st.markdown('<div class="panel-head">◤ NETWORK EVENTS — JOIN / LEAVE LOG'
+                    '<span style="color:#8a6640;text-transform:none;letter-spacing:.4px">'
+                    ' &nbsp;— how the fleet changed over time</span></div>',
                     unsafe_allow_html=True)
         evs = st.session_state.events
         if not evs:
@@ -922,7 +1040,9 @@ def _run_dashboard():
 
     # ---- ANALYTICS ----
     with tab_analytics:
-        st.markdown('<div class="panel-head">◤ NETWORK ANALYTICS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel-head">◤ NETWORK ANALYTICS'
+                    '<span style="color:#8a6640;text-transform:none;letter-spacing:.4px">'
+                    ' &nbsp;— historical trends and full message log</span></div>', unsafe_allow_html=True)
         if df.empty:
             st.markdown('<div class="feed-item fi-info">— no data yet — press ▶ START —</div>',
                         unsafe_allow_html=True)
